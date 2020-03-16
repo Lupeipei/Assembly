@@ -49,16 +49,14 @@ show_str: mov ax, 0b800h
 	  mul dl
 	  mov di, ax
 	  add bp, di
-	  mov di, 0
 
  display: mov ch, ds:[si]
 	  jcxz finish
-	  mov es:[bp + di], ch
-	  mov es:[bp + di + 1], bl
+	  mov es:[bp], ch
+	  mov es:[bp + 1], bl
 	  inc si
-	  add di, 2
+	  add bp, 2
 	  jmp short display
   finish: ret
 code ends
 end start
-
