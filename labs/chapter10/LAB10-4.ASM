@@ -1,11 +1,15 @@
-assume cs:code, ds:data, ss:stack
+assume cs:code, ds:data, es:data2, ss:stack
 
 data segment
  db 10 dup (0)
 data ends
 
+data2 segment
+ dd 57890000
+data2 ends
+
 stack segment
- dw 16 dup(0)
+ dw 32 dup(0)
 stack ends
 
 code segment
@@ -15,9 +19,12 @@ code segment
 
 	 mov ax, stack
 	 mov ss, ax
-	 mov sp, 20h
+	 mov sp, 40h
 
-         mov ax, 12666
+	 mov ax, data2
+	 mov es, ax
+	 mov ax, es:[0]
+	 mov dx, es:[2]
 	 call dtoc
 
 	 mov dh, 8
@@ -28,21 +35,18 @@ code segment
 	 mov ax, 4c00h
 	 int 21h
 
-   dtoc: push ax
-         push bx
-	 push cx
+   dtoc: push cx
 	 push si
 	 push di
 
 	 mov si, 0
 	 mov di, 0
-	 mov bx, 10
 
-     s0: mov dx, 0
-	 div bx
+     s0: mov cx, 10
+         call divdw
 
-	 add dx, 30h
-	 push dx
+	 add cx, 30h
+	 push cx
 	 inc si ; si 用来记录总的字符串个数
 	 mov cx, ax
 	 jcxz s1
@@ -59,9 +63,20 @@ code segment
      ok: pop di
          pop si
          pop cx
-	 pop bx
-	 pop ax
          ret 
+
+   divdw: push ax
+          mov ax, dx
+	  mov dx, 0
+	  div cx
+	  mov bx, ax
+
+	  pop ax
+	  div cx
+
+	  mov cx, dx
+	  mov dx, bx
+          ret
 
 show_str: mov ax, 0b800h
           mov es, ax
